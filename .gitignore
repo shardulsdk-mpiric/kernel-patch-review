@@ -1,0 +1,4 @@
+config.local.sh
+runs/
+*.pyc
+__pycache__/
