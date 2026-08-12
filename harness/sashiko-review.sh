@@ -37,7 +37,7 @@
 # 3 = review error. Nonzero is usually a result, not a crash.
 
 set -euo pipefail
-. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.sh"
+. "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
 SASHIKO_DIR="$SAMIKSHAKA_ROOT/sashiko"
 DEFAULT_REPO="$KERNEL_TREE"

@@ -14,7 +14,7 @@
 #   - 402 Payment Required part-way through the report
 #   - a panic in git_read_files (fixed, commit 4e03044)
 set -uo pipefail
-. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.sh"
+. "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 TAG="${1:?usage: recover-findings.sh <run-tag>}"
 B=${REVIEW_RUNS:-$REVIEW_REPO/runs}
 D="$B/penalise_v1_${TAG}/proxy/replies"

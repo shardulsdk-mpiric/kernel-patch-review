@@ -25,7 +25,7 @@
 # window is already drained. The script prints the reminder rather than
 # pretending to know.
 set -uo pipefail
-. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.sh"
+. "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
 S=$SAMIKSHAKA_ROOT
 STATE="$S/local_llm/.review-schedule"

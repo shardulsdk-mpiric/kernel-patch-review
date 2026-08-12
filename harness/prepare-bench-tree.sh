@@ -31,7 +31,7 @@
 #      challenge for scripts; b4 uses t.mbox.gz and works)
 #   4. detached worktree, apply, and VERIFY the post-image blob
 set -uo pipefail
-. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config.sh"
+. "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
 PSID="${1:?usage: prepare-bench-tree.sh <patchset-id> [tree-name]}"
 NAME="${2:-bench_${PSID}}"

@@ -22,8 +22,10 @@
 set -uo pipefail
 
 # Resolve the repo from this script's own location, then load site paths.
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REVIEW_REPO="$(cd "$HERE/../.." && pwd)"
+# Resolve through symlinks: the skill is normally installed as a symlink from
+# ~/.claude/skills, and dirname on the link path walks the link, not the repo.
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+REVIEW_REPO="$(cd "$(dirname "$SELF")/../.." && pwd)"
 . "$REVIEW_REPO/config.sh"
 KERNEL="$KERNEL_TREE"
 WORKROOT="$REVIEW_WORKROOT"
