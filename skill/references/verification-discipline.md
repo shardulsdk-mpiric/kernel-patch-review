@@ -151,3 +151,20 @@ intended subject. Test the fix on the model with the disease.
 Say which lenses you applied, which you skipped, and what you could not
 establish. A review that claims less and marks its uncertainty is more useful
 than one that implies completeness.
+
+
+## Rule 8: quote the refuter, never summarise a reply you have not read
+
+A reviewer dispatched an adversarial subagent, never read its answer, and wrote
+up "the challenges it raised" from its own re-derivation -- it had mistaken a
+match on a string from its own prompt for the reply. It credited corrections to
+an agent it had not heard from and claimed to have verified "its" citations.
+
+Self-refutation is not worthless; that reviewer reached sound corrections alone.
+But it is not what an independent pass buys, and reporting it as one is a false
+claim about evidence -- the same class of error as claiming a test ran.
+
+So: paste the refuter's verdict text into your report, with its citations, and
+mark clearly which corrections came from it and which you derived yourself. If
+you never received a reply, say that and label the pass self-refutation. Never
+narrate a reply you did not read.
