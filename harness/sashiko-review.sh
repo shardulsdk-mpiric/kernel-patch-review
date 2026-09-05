@@ -6,8 +6,8 @@
 #   1. `sashiko review` resolves the repo from the CWD, so it must be
 #      run from inside the tree being reviewed -- not from the Sashiko
 #      checkout. This handles the cd.
-#   2. ANTHROPIC_API_KEY is set in Shardul's environment. The Claude
-#      Code CLI PREFERS that key over the claude.ai/Max login, so every
+#   2. If ANTHROPIC_API_KEY is set in the environment, the Claude Code CLI
+#      PREFERS it over the claude.ai subscription login, so every
 #      `claude --print` Sashiko spawns would silently bill the API key
 #      instead of the subscription. This unsets it for the run only.
 #   3. It defaults --settings to the operator config in .claude/ rather
@@ -39,12 +39,14 @@
 set -euo pipefail
 . "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
-SASHIKO_DIR="$SAMIKSHAKA_ROOT/sashiko"
+kpr_require SASHIKO_SRC "a checkout of https://github.com/sashiko-dev/sashiko"
+kpr_require KERNEL_TREE "the kernel clone to review, or pass -r"
+SASHIKO_DIR="$SASHIKO_SRC"
 DEFAULT_REPO="$KERNEL_TREE"
 BIN="${SASHIKO_DIR}/target/release/sashiko"
 
 repo="${DEFAULT_REPO}"
-settings="${SASHIKO_DIR}/.claude/sashiko-local.toml"
+settings="${SASHIKO_SETTINGS}"
 extra=()
 
 while getopts ":nr:s:p:h" opt; do

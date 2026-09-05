@@ -5,13 +5,15 @@
 #   ./schedule-review.sh                      # uses the saved anchor
 #   ./schedule-review.sh --now                # skip waiting, run immediately
 #   ./schedule-review.sh --dry-run            # show the schedule, run nothing
+#   ./schedule-review.sh -- <args>            # args after -- go to the launcher
+#
+# What it fires is $REVIEW_LAUNCH_CMD (default: harness/sashiko-review.sh).
 #
 # WHY THE TAIL OF A WINDOW, NOT THE START
 # ---------------------------------------
-# Shardul's reasoning, and it is better than "launch just after a reset":
-# leftover quota expires at the reset, so spending it in the last ~45 minutes
-# costs nothing he would otherwise use. If the run overruns, it spills into a
-# fresh full window rather than eating the middle of one he wants for other
+# Leftover quota expires at the reset, so spending it in the last ~45 minutes
+# costs nothing you would otherwise use. If the run overruns, it spills into a
+# fresh full window rather than eating the middle of one you wanted for other
 # work. Measured review length: 45m10s for one patch, 10 stages -- so a 45
 # minute lead lands the finish close to the reset boundary.
 #
@@ -27,8 +29,8 @@
 set -uo pipefail
 . "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
-S=$SAMIKSHAKA_ROOT
-STATE="$S/local_llm/.review-schedule"
+mkdir -p "$REVIEW_STATE"
+STATE="$REVIEW_STATE/review-schedule"
 LEAD=45          # minutes before reset to launch
 CYCLE=5          # hours between resets
 ANCHOR=""
@@ -42,6 +44,7 @@ while [ $# -gt 0 ]; do
     --cycle)  CYCLE="$2"; shift 2 ;;
     --now)    NOW=1; shift ;;
     --dry-run) DRY=1; shift ;;
+    --) shift; break ;;
     -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
@@ -94,4 +97,4 @@ fi
 
 echo
 echo "=== launching review at $(date '+%F %H:%M:%S') ==="
-exec /home/shardul/.claude/jobs/93eedcc1/tmp/claude-arm.sh
+exec "$REVIEW_LAUNCH_CMD" "$@"

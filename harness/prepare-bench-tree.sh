@@ -35,10 +35,12 @@ set -uo pipefail
 
 PSID="${1:?usage: prepare-bench-tree.sh <patchset-id> [tree-name]}"
 NAME="${2:-bench_${PSID}}"
-S=$SAMIKSHAKA_ROOT
+kpr_require KERNEL_TREE "the kernel clone whose history the pre-image is searched for"
+kpr_require HOSTED_REVIEWS "populate it with corpus/fetch-sashiko-hosted.sh"
 K=$KERNEL_TREE
-CORPUS="$S/corpus/data/sashiko-hosted/mptcp/reviews/${PSID}.json"
-TREE="$S/bench_trees/${NAME}"
+CORPUS="$HOSTED_REVIEWS/${PSID}.json"
+TREE="$BENCH_TREES/${NAME}"
+mkdir -p "$BENCH_TREES"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 

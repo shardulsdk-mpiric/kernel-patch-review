@@ -27,8 +27,16 @@ set -uo pipefail
 SELF="$(readlink -f "${BASH_SOURCE[0]}")"
 REVIEW_REPO="$(cd "$(dirname "$SELF")/../.." && pwd)"
 . "$REVIEW_REPO/config.sh"
-KERNEL="$KERNEL_TREE"
-WORKROOT="$REVIEW_WORKROOT"
+
+# An empty KERNEL_TREE must stop the run. `git -C ""` silently operates on the
+# current directory, so an unset tree does not fail -- it reviews whatever repo
+# you happen to be standing in, which is the exact failure this script exists
+# to prevent.
+if [ -z "${REVIEW_TREE:-}" ]; then
+  kpr_require KERNEL_TREE "run this from inside your kernel tree, or set KERNEL_TREE in config.local.sh"
+fi
+KERNEL="${REVIEW_TREE:-$KERNEL_TREE}"
+WORKROOT="${REVIEW_WORKROOT:-$KERNEL/.claude/worktrees}"
 
 die() { echo "SETUP FAILED: $*" >&2; exit 1; }
 
@@ -44,7 +52,7 @@ esac
 
 # ---------------------------------------------------------------- git ref ---
 if [ "$MODE" = gitref ]; then
-  T="${REVIEW_TREE:-$KERNEL}"
+  T="$KERNEL"
   git -C "$T" rev-parse --git-dir >/dev/null 2>&1 || die "not a git repo: $T"
   if [[ "$ARG" == *".."* ]]; then
     git -C "$T" rev-parse "${ARG%%..*}" >/dev/null 2>&1 || die "cannot resolve range: $ARG"

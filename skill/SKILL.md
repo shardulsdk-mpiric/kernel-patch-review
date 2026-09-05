@@ -10,13 +10,46 @@ harness: a **decomposition into independent analytical lenses**, a **large
 false-positive and severity corpus**, and a **consolidation discipline** that
 verifies findings before reporting them.
 
-Running it here is far cheaper. The harness re-sends the full static context on
-every turn of every stage — one measured single-stage run billed 1.6M cached
-tokens against 57k of output. In-session, a file read once stays read.
+## Why run it in-session rather than through the harness
 
-What is genuinely lost is **stage independence**: the harness runs its analysis
-stages blind to each other, so they cannot anchor on one another's conclusions.
-Compensate deliberately — see "Independence" below.
+Not because the analysis is better -- it is not, and nothing here has been
+measured against the harness on equal footing. The reason is the **cost
+mechanism**, which differs structurally.
+
+Sashiko drives its pipeline by spawning one process per stage. With the
+Claude Code CLI provider that invocation is (verified by observing the running
+processes):
+
+    claude --print --output-format json --no-session-persistence
+
+`--no-session-persistence` means every stage starts from an empty context. The
+prompt bundle, the patch and the surrounding source are therefore re-sent once
+per stage, with no cache reuse and no carryover between stages. Verified
+measurements from runs of this pipeline:
+
+| measured | value |
+|---|---|
+| one single stage | 1.6M cached input tokens against 57k output |
+| one patch, 10 stages, wall clock | 45m10s |
+| what one patch costs a fixed-quota subscription | roughly one full usage window |
+
+In-session the same bundle is read once into one context and every later step
+is a cache read against that same prefix. **Assumption, not measurement:** that
+this makes a full review materially cheaper in tokens. The in-session side has
+not been metered, and the saving is conditional -- every subagent dispatched
+under sections 1b, 4 and 5 starts a fresh context and pays part of the re-send
+back. A wide fan-out could plausibly cost more than the harness. Fan out on
+purpose, not by habit.
+
+Note this is not "API versus Claude Code". Sashiko against an API key spends
+money and no quota; against the CLI provider it spends quota and no money. The
+token volume is the same either way, and it is driven by the per-stage re-send.
+
+## What running in-session costs you
+
+**Stage independence.** The harness runs its stages blind to each other, so
+they cannot anchor on one another's conclusions. In one context you cannot
+un-see your own earlier conclusion. Compensate deliberately -- see section 4.
 
 ## 0. Where things live
 
@@ -54,7 +87,7 @@ guidance not applied. Grep there first.
 Whatever the user gave you — "review HEAD", a sha, a range, a message-id, a
 lore URL, a Sashiko patchset id, or a saved mbox — resolve it with:
 
-    .claude/skills/kernel-patch-review/scripts/setup-review-target.sh <what they said>
+    ~/.claude/skills/kernel-patch-review/scripts/setup-review-target.sh <what they said>
 
 It prints `TREE=`, `RANGE=` and `VERIFIED=`, and exits non-zero with a reason if
 it cannot produce a trustworthy target. **Review only what it printed.** Do not

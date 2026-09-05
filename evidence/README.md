@@ -33,9 +33,19 @@ directional (pre-existing is not a discount) and definitional (apply the stated
 bar), not "be more alarmed".
 
 ### Reproducing
+
+The corpus is not shipped with this repo -- it is refetched from the public
+sashiko.dev JSON API (`/api/patchsets`, `/api/review`), which is what the web
+UI at <https://sashiko.dev/#/?list=dev.linux.lists.mptcp> reads. The hosted
+reviews are **not** on lore, so lore cannot be used as the source.
+
 ```sh
+../corpus/fetch-sashiko-hosted.sh          # ~316 MPTCP patchsets, ~13 MB
 . ../config.sh && ./severity-calibration.py --per-patch
 ```
+
+Numbers below were measured on the MPTCP list; refetching later will include
+patchsets posted since, so exact counts drift.
 
 ### A trap this script documents
 The patchset index records carry `findings_critical/high/medium/low` integers.
