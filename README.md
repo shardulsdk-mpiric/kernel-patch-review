@@ -27,50 +27,36 @@ them. See [Evidence and honest limits](#evidence-and-honest-limits).
 
 ## Quick start
 
-**Prerequisites:** `git`, `python3`, Claude Code. `b4` additionally if you want
-to review a patch by message-id or lore URL (`pip install b4`); `curl` if you
-want the ground-truth corpus.
-
-### 1. Get Sashiko's prompt bundle on disk
-
-The skill reads Sashiko's prompts rather than duplicating them, so they have to
-exist somewhere. Either is fine:
-
-**If you already run Sashiko locally**, `sashiko init` has already put the
-bundle under `~/.local/share/sashiko/prompts/<hash>/kernel/`, and `config.sh`
-finds it automatically (newest first). Nothing to do.
-
-**Otherwise, clone the repo and point at the prompts** -- no install step, the
-files just need to be readable:
+Everything below uses `$KPR` for wherever you cloned this, so the commands work
+from any directory. Copy the whole block, adjusting the two paths on the first
+two lines.
 
 ```sh
-git clone https://github.com/sashiko-dev/sashiko.git
-echo "SASHIKO_PROMPTS=$PWD/sashiko/third_party/prompts/kernel" >> config.local.sh
+# --- 1. Get this repo -------------------------------------------------------
+git clone https://github.com/OWNER/kernel-patch-review.git ~/src/kernel-patch-review
+KPR=~/src/kernel-patch-review
+
+# --- 2. Get Sashiko's prompt bundle on disk ---------------------------------
+# Skip this if you already run Sashiko locally: `sashiko init` has put the
+# bundle under ~/.local/share/sashiko/prompts/<hash>/kernel/ and it is found
+# automatically. Otherwise clone it and record where it is:
+git clone https://github.com/sashiko-dev/sashiko.git ~/src/sashiko
+echo "SASHIKO_PROMPTS=$HOME/src/sashiko/third_party/prompts/kernel" >> "$KPR/config.local.sh"
+
+# --- 3. Install the skill ---------------------------------------------------
+mkdir -p ~/.claude/skills
+ln -s "$KPR/skill" ~/.claude/skills/kernel-patch-review
+
+# --- 4. Check it, FROM YOUR KERNEL TREE -------------------------------------
+cd /path/to/your/linux && "$KPR/skill/scripts/preflight.sh"
 ```
 
-(Sashiko also ships `third_party/prompts/kernel/scripts/claude-setup.sh`, which
-installs *its own* `kernel` skill and `/kreview`-style commands. That is
-complementary to this skill and entirely optional -- this one does not need it.)
+**Step 4 must run from inside your kernel tree.** `preflight.sh` discovers the
+tree from your working directory, so running it from this repo will always
+report `KERNEL_TREE unset` -- that is the check working, not a broken install.
 
-### 2. Install this skill
-
-```sh
-git clone <this repo> kernel-patch-review
-ln -s "$PWD/kernel-patch-review/skill" ~/.claude/skills/kernel-patch-review
-```
-
-That is the whole install. `config.sh` discovers the rest: your kernel tree
-from the working directory, and the prompt bundle from its install location.
-
-### 3. Check your setup
-
-```sh
-cd /path/to/your/linux/tree
-kernel-patch-review/skill/scripts/preflight.sh
-```
-
-This is the one command to run if anything ever seems off. It reports three
-tiers and exits non-zero if a REQUIRED item is missing:
+`preflight.sh` is the one command to run whenever anything seems off. It
+reports three tiers and exits non-zero if a REQUIRED item is missing:
 
 | tier | meaning |
 |---|---|
@@ -78,13 +64,13 @@ tiers and exits non-zero if a REQUIRED item is missing:
 | **RECOMMENDED** | a named step of the procedure is unavailable, e.g. guard reasoning without `pointer-guards.md`. The review runs and reports the gap. |
 | **CONDITIONAL** | only matters for one use -- `b4` for message-id review, the corpus for scoring against published reviews |
 
-Every problem it reports comes with the exact command to fix it. The skill runs
-this itself before every review and will **ask you** to arrange anything
+Every problem it reports comes with the exact command that fixes it. The skill
+runs this itself before every review and will **ask you** to arrange anything
 REQUIRED rather than reviewing without it -- a review run without the prompt
 bundle still produces a confident-looking report, and that is the failure mode
 worth being loud about.
 
-### 4. Review a patch
+### Review a patch
 
 In Claude Code, from inside your kernel tree:
 
@@ -108,14 +94,16 @@ mechanism and consequence -- plus what it did not check.
 
 ## Reviewing something other than HEAD
 
-The resolver takes whatever you have:
+The resolver takes whatever you have. Run it **from inside your kernel tree**,
+using an absolute path to the script:
 
 ```sh
-skill/scripts/setup-review-target.sh HEAD                   # or a sha, or a range
-skill/scripts/setup-review-target.sh <message-id>           # fetched with b4
-skill/scripts/setup-review-target.sh https://lore.../<id>/  # a lore URL
-skill/scripts/setup-review-target.sh --file series.mbox     # a saved mbox
-skill/scripts/setup-review-target.sh --patchset 12427       # a sashiko.dev id
+cd /path/to/your/linux
+$KPR/skill/scripts/setup-review-target.sh HEAD                   # or a sha, or a range
+$KPR/skill/scripts/setup-review-target.sh <message-id>           # fetched with b4
+$KPR/skill/scripts/setup-review-target.sh https://lore.../<id>/  # a lore URL
+$KPR/skill/scripts/setup-review-target.sh --file series.mbox     # a saved mbox
+$KPR/skill/scripts/setup-review-target.sh --patchset 12427       # a sashiko.dev id
 ```
 
 **Review only what it printed a `RANGE` for.** One subject in the MPTCP corpus
@@ -125,17 +113,29 @@ tells you how much is confirmed: `yes` means blob hashes match a published
 review, `content-only` means the series applied cleanly but nothing independent
 confirms the bytes, `no` means it is your working tree as it stands.
 
+Reviewing a message-id, a lore URL, an mbox or a `--patchset` needs somewhere
+to apply the series, so those create a detached git worktree under
+`$KERNEL_TREE/.claude/worktrees/`. Reviewing a sha or a range does not touch
+your tree at all. Set `REVIEW_WORKROOT` if you would rather they went elsewhere.
+
 ## Scoring against published Sashiko reviews
 
 Sashiko's hosted reviews are **not** on lore -- they live only in the web app.
 Fetch them from its public API to use as ground truth:
 
 ```sh
-corpus/fetch-sashiko-hosted.sh        # MPTCP list; ~316 patchsets, ~13 MB
+$KPR/corpus/fetch-sashiko-hosted.sh        # the whole MPTCP list
 ```
 
-Then `SKILL.md` section 7 scores a review against the published one, and
-`evidence/severity-calibration.py` reproduces the severity tables.
+The list grows as patches are posted, so the corpus size depends on when you
+fetch; `--index-only` reports the current total without downloading reviews.
+
+Then `SKILL.md` section 7 scores a review against the published one, and the
+severity tables reproduce with:
+
+```sh
+cd "$KPR/evidence" && . ../config.sh && ./severity-calibration.py --per-patch
+```
 
 ## Layout
 
@@ -148,6 +148,8 @@ skill/                 what Claude Code loads (symlink this into ~/.claude/skill
                          setup-review-target.sh -- resolves what to review
 corpus/                fetch-sashiko-hosted.sh -- pulls the ground-truth corpus
 evidence/              the measurements behind the rules
+PRE-PUBLICATION-CHECKLIST.md   maintainer checklist for cutting a release;
+                       not needed to use this
 harness/               optional: runs the real Sashiko binary for comparison,
                        schedules runs, logs and recovers findings
 ```

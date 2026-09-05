@@ -31,10 +31,15 @@ head_() { [ "$QUIET" -eq 1 ] || printf '\n%s\n' "$1"; }
 # ---------------------------------------------------------------- required ---
 head_ "REQUIRED -- a review must not start without these"
 
-if command -v git >/dev/null 2>&1; then ok "git" "$(git --version | awk '{print $3}')"
+HAVE_GIT=0
+if command -v git >/dev/null 2>&1; then HAVE_GIT=1; ok "git" "$(git --version | awk '{print $3}')"
 else bad "git" "not on PATH" "install git"; fi
 
-if [ -n "${KERNEL_TREE:-}" ] && git -C "$KERNEL_TREE" rev-parse --git-dir >/dev/null 2>&1; then
+if [ "$HAVE_GIT" -eq 0 ]; then
+    # Without git the tree cannot be probed. Saying "not a git repo" here would
+    # send the user to fix the wrong thing.
+    bad "kernel tree" "cannot check without git" "install git, then re-run"
+elif [ -n "${KERNEL_TREE:-}" ] && git -C "$KERNEL_TREE" rev-parse --git-dir >/dev/null 2>&1; then
     _dirty=$(git -C "$KERNEL_TREE" status --porcelain 2>/dev/null | head -1)
     ok "kernel tree" "$KERNEL_TREE${_dirty:+  (uncommitted changes present)}"
 elif [ -n "${KERNEL_TREE:-}" ]; then

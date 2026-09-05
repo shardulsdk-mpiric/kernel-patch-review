@@ -77,9 +77,17 @@ who will check it.
 
 The test is a clone into a clean directory as a user who has never seen it.
 
-- [ ] **Clone, follow the README verbatim, and run the first real command.**
-      Nothing may require knowledge that is not written down. Ideally do this
-      in a container or a different user account.
+- [ ] **The README's clone URL is real.** It currently reads
+      `https://github.com/OWNER/...`. A README whose own clone command is a
+      placeholder cannot be followed by anyone who found it on the web.
+- [x] **Clone, follow the README verbatim, and run the first real command.**
+      *Done once, by a reader with no knowledge of the repo, against a clone
+      at a path unrelated to the source. It found five blockers, all of them
+      shell fragments that assumed a working directory the README never
+      established, plus an ordering bug that wrote `config.local.sh` before
+      the directory it belongs in existed. Re-run this after any README edit
+      -- the author cannot perform it, because the author cannot un-know the
+      setup.*
 - [x] **Prerequisites are listed and machine-checkable.** `preflight.sh` reports
       REQUIRED / RECOMMENDED / CONDITIONAL with a remediation command each.
 - [x] **Missing prerequisites fail loudly, never silently.** *Verified in four
@@ -87,6 +95,9 @@ The test is a clone into a clean directory as a user who has never seen it.
       The dangerous case is silent degradation -- a review that runs without
       the corpus still looks confident.*
 - [x] **No hardcoded site paths remain**, and defaults are discovered or XDG.
+- [x] **Every command in the README was executed as written, from the working
+      directory the README puts the reader in** -- not from wherever the author
+      happened to be standing.
 - [ ] **Scripts do not assume your shell, locale, or tool versions.** Note the
       minimum versions you actually tested against.
 
@@ -94,6 +105,9 @@ The test is a clone into a clean directory as a user who has never seen it.
 
 - [ ] **README works top to bottom.** Every command runs; every link resolves.
 - [ ] **No dead references** to files, sections, or scripts that were renamed.
+- [ ] **No hardcoded counts of data that grows.** The corpus was 316 patchsets
+      when first fetched and 415 four weeks later; a fixed number in the README
+      is wrong by the time anyone reads it.
 
           grep -roE '\[[^]]+\]\([^)h][^)]*\)' --include='*.md' . | ...  # check paths resolve
 

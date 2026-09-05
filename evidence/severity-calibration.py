@@ -13,9 +13,15 @@ field instead gave a wrong baseline that nearly shipped.
 """
 import json, glob, os, sys, collections
 
-D = os.environ.get("HOSTED_REVIEWS")
-if not D:
-    sys.exit("set HOSTED_REVIEWS (see config.sh)")
+# Prefer the environment (config.sh exports it); otherwise fall back to the
+# same repo-relative default config.sh uses, so this runs without sourcing it.
+D = os.environ.get("HOSTED_REVIEWS") or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "corpus", "sashiko-hosted", "mptcp", "reviews")
+if not os.path.isdir(D) or not glob.glob(os.path.join(D, "*.json")):
+    sys.exit("no corpus at %s\n"
+             "fetch it with corpus/fetch-sashiko-hosted.sh, "
+             "or point HOSTED_REVIEWS at one" % D)
 
 sev = collections.Counter()
 by_pre = {True: collections.Counter(), False: collections.Counter()}

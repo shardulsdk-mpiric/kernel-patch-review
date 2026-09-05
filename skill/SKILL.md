@@ -53,10 +53,11 @@ un-see your own earlier conclusion. Compensate deliberately -- see section 4.
 
 ## 0. Where things live
 
-This skill and its harness are one repository, cloned anywhere. Nothing below
-is an absolute path: `config.sh` at the repo root defines every site path, and
-each entry can be overridden by an environment variable of the same name or by
-an untracked `config.local.sh`.
+This skill and its harness are one repository, cloned anywhere. No *site* path
+is hardcoded: `config.sh` at the repo root defines every one of them, and each
+can be overridden by an environment variable of the same name or by an
+untracked `config.local.sh`. The only absolute paths written below are the
+skill's own scripts, quoted at their default install location.
 
 ```
 <repo>/config.sh                     site paths -- edit this, not the scripts
@@ -84,9 +85,12 @@ guidance not applied. Grep there first.
 
 ## 0b. Check the prerequisites, and ASK rather than work around a gap
 
-Run this first, every time:
+Run this first, every time. It lives in `scripts/` beside this file; with the
+install the README describes, that is:
 
     ~/.claude/skills/kernel-patch-review/scripts/preflight.sh
+
+If the skill was installed under a different name, use that path instead.
 
 It reports three tiers and exits non-zero if anything REQUIRED is missing.
 
@@ -114,6 +118,8 @@ Whatever the user gave you — "review HEAD", a sha, a range, a message-id, a
 lore URL, a Sashiko patchset id, or a saved mbox — resolve it with:
 
     ~/.claude/skills/kernel-patch-review/scripts/setup-review-target.sh <what they said>
+
+(again, `scripts/` beside this file, whatever the skill is installed as)
 
 It prints `TREE=`, `RANGE=` and `VERIFIED=`, and exits non-zero with a reason if
 it cannot produce a trustworthy target. **Review only what it printed.** Do not
