@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Run a local Sashiko review over a kernel tree using the Claude Code
 # CLI provider (Claude Max subscription, no API-key billing).
 #
@@ -39,14 +42,10 @@
 set -euo pipefail
 . "$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)/config.sh"
 
-kpr_require SASHIKO_SRC "a checkout of https://github.com/sashiko-dev/sashiko"
-kpr_require KERNEL_TREE "the kernel clone to review, or pass -r"
-SASHIKO_DIR="$SASHIKO_SRC"
-DEFAULT_REPO="$KERNEL_TREE"
-BIN="${SASHIKO_DIR}/target/release/sashiko"
-
-repo="${DEFAULT_REPO}"
-settings="${SASHIKO_SETTINGS}"
+# Requirements are checked AFTER argument parsing: -h must work without a
+# configured checkout, and -r/-s can supply what config.sh could not find.
+repo="${KERNEL_TREE:-}"
+settings="${SASHIKO_SETTINGS:-}"
 extra=()
 
 while getopts ":nr:s:p:h" opt; do
@@ -55,11 +54,17 @@ while getopts ":nr:s:p:h" opt; do
     r) repo="${OPTARG}" ;;
     s) settings="${OPTARG}" ;;
     p) extra+=("--prompts" "${OPTARG}") ;;
-    h) sed -n '2,32p' "$0"; exit 0 ;;
+    h) sed -n '5,35p' "$0"; exit 0 ;;
     \?) echo "unknown option -${OPTARG}" >&2; exit 2 ;;
   esac
 done
 shift $((OPTIND - 1))
+
+kpr_require SASHIKO_SRC "a checkout of https://github.com/sashiko-dev/sashiko"
+SASHIKO_DIR="$SASHIKO_SRC"
+BIN="${SASHIKO_DIR}/target/release/sashiko"
+[ -n "$repo" ] || kpr_require KERNEL_TREE "the kernel clone to review, or pass -r"
+[ -n "$settings" ] || { echo "no settings file: set SASHIKO_SETTINGS or pass -s" >&2; exit 2; }
 
 range="${1:-HEAD}"
 shift $(( $# > 0 ? 1 : 0 ))

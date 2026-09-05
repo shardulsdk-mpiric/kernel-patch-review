@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Fire a Sashiko review into the TAIL of a Claude Max usage window.
 #
 #   ./schedule-review.sh --anchor "2026-08-10 22:15" [--lead 45] [--cycle 5]
@@ -45,7 +48,7 @@ while [ $# -gt 0 ]; do
     --now)    NOW=1; shift ;;
     --dry-run) DRY=1; shift ;;
     --) shift; break ;;
-    -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
+    -h|--help) sed -n '5,33p' "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
 done

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Build a bench tree that provably reviews the SAME BYTES the hosted reviewer
 # saw, and refuse to produce one that does not.
 #

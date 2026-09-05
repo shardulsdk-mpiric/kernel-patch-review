@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Fetches the hosted Sashiko corpus for the MPTCP mailing list from
 # sashiko.dev, so local review output can be scored against what the hosted
 # instance actually said. This IS the ground truth for the primary objective.

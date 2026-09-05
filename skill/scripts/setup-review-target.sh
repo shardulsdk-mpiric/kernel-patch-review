@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Turn "something the user said" into a reviewable tree + range.
 #
 #   setup-review-target.sh HEAD

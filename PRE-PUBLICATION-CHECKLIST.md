@@ -30,6 +30,17 @@ anything the change touched.
       endorsed project.
 - [ ] **No implied endorsement.** Do not use another project's or maintainer's
       name in a way that suggests they reviewed, approved, or sponsored this.
+- [x] **Commit trailers match the conventions of the project this could be
+      ported to.** *Verified against Sashiko's own history: `Signed-off-by:` on
+      155 of its last 156 commits and enforced by `scripts/check-sob.sh` in
+      `.github/workflows/pull-requests.yml`; AI assistance is recorded as
+      `Assisted-by: <model>` (observed values include `claude-opus-4.6
+      <noreply@anthropic.com>`, `gemini-3.1-pro`, `deepseek-v4-flash`), not
+      `Co-Authored-By:`, which appears only twice.*
+- [ ] **Sign-off, if these commits are ever to be ported.** DCO sign-off is a
+      certification by the person named and must be added by that person, not
+      on their behalf. `git commit -s`, or `git rebase --signoff` for existing
+      commits.
 
 ## 2. Leakage
 
@@ -77,9 +88,10 @@ who will check it.
 
 The test is a clone into a clean directory as a user who has never seen it.
 
-- [ ] **The README's clone URL is real.** It currently reads
-      `https://github.com/OWNER/...`. A README whose own clone command is a
-      placeholder cannot be followed by anyone who found it on the web.
+- [x] **The README's clone URL is real.** Points at
+      `github.com/shardulsdk-mpiric/kernel-patch-review`. *The repository must
+      exist under that name before this is published, or the first command in
+      the README 404s.*
 - [x] **Clone, follow the README verbatim, and run the first real command.**
       *Done once, by a reader with no knowledge of the repo, against a clone
       at a path unrelated to the source. It found five blockers, all of them

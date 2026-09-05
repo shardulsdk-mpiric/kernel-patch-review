@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 # Check everything a review needs BEFORE starting one.
 #
 # The failure this exists to prevent is silent degradation. A missing kernel

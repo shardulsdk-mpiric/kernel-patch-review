@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 """Logging + provider-pinning proxy for Sashiko's openai-compatible provider.
 
 Sits on 127.0.0.1 between Sashiko and an upstream OpenAI-compatible endpoint.

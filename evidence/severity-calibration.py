@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+# SPDX-License-Identifier: Apache-2.0
+#
 """Re-derive the severity numbers that SKILL.md section 6b rests on.
 
 Reads $HOSTED_REVIEWS (one JSON per patchset) and prints the hosted severity

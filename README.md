@@ -33,7 +33,7 @@ two lines.
 
 ```sh
 # --- 1. Get this repo -------------------------------------------------------
-git clone https://github.com/OWNER/kernel-patch-review.git ~/src/kernel-patch-review
+git clone https://github.com/shardulsdk-mpiric/kernel-patch-review.git ~/src/kernel-patch-review
 KPR=~/src/kernel-patch-review
 
 # --- 2. Get Sashiko's prompt bundle on disk ---------------------------------
@@ -188,8 +188,15 @@ applied. Grep the corpus before adding a rule here.
 
 ## License
 
+Copyright 2026 Shardul Bankar <shardul.b@mpiricsoftware.com>
+
 Apache License 2.0 -- see [LICENSE](LICENSE). Chosen to match Sashiko, so work
 here can flow upstream into it.
+
+If you send a change here that you would also like to see upstream in Sashiko,
+add a `Signed-off-by:` line (`git commit -s`): Sashiko's CI enforces DCO
+sign-off on pull requests, and a commit without one cannot be carried across
+without being rewritten.
 
 Sashiko and its prompt bundle are separate projects, used here under their own
 licenses; this repository redistributes neither.
