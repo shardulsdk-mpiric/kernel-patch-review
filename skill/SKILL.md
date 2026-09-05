@@ -82,6 +82,32 @@ into this skill that `SASHIKO_PROMPTS` already stated, and in three of those the
 corpus version was better. The failures were never missing guidance -- they were
 guidance not applied. Grep there first.
 
+## 0b. Check the prerequisites, and ASK rather than work around a gap
+
+Run this first, every time:
+
+    ~/.claude/skills/kernel-patch-review/scripts/preflight.sh
+
+It reports three tiers and exits non-zero if anything REQUIRED is missing.
+
+**If something REQUIRED is missing, stop and ask the user to arrange it.** Do
+not review anyway, do not substitute your own knowledge for the corpus, and do
+not quietly skip the step. The failure this guards against is silent: a review
+run without the prompt bundle still produces a confident-looking report, and
+nothing in that report says it was written without the false-positive and
+severity guidance it is supposed to defer to. Quote the `[MISSING]` lines and
+the remediation the script printed, and wait.
+
+**If something RECOMMENDED is missing**, say so in the report's blind-spots
+section and name which step you could not perform -- for example, guard
+reasoning without `pointer-guards.md`, or `Fixes:` verification without
+`fixes-tag.md`. Continue; do not stop.
+
+**If something CONDITIONAL is missing**, it only matters if the user asked for
+that path. A missing `b4` blocks a message-id review and nothing else; an
+unpopulated corpus blocks section 7 scoring and `--patchset`. Tell the user
+what it blocks and offer the alternative the script names.
+
 ## 1. Establish exactly what you are reviewing — run the resolver, do not improvise
 
 Whatever the user gave you — "review HEAD", a sha, a range, a message-id, a

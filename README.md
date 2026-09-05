@@ -62,16 +62,27 @@ ln -s "$PWD/kernel-patch-review/skill" ~/.claude/skills/kernel-patch-review
 That is the whole install. `config.sh` discovers the rest: your kernel tree
 from the working directory, and the prompt bundle from its install location.
 
-### 3. Check it resolved everything
+### 3. Check your setup
 
 ```sh
 cd /path/to/your/linux/tree
-kernel-patch-review/skill/scripts/setup-review-target.sh HEAD
+kernel-patch-review/skill/scripts/preflight.sh
 ```
 
-It prints `TREE=`, `RANGE=` and `VERIFIED=`. If something is missing it aborts
-naming the variable to set -- put it in `config.local.sh` beside `config.sh`,
-or export it. Nothing else needs configuring.
+This is the one command to run if anything ever seems off. It reports three
+tiers and exits non-zero if a REQUIRED item is missing:
+
+| tier | meaning |
+|---|---|
+| **REQUIRED** | a review must not start without it -- git, a kernel tree, and the prompt bundle's `false-positive-guide.md`, `severity.md` and `subsystem/` |
+| **RECOMMENDED** | a named step of the procedure is unavailable, e.g. guard reasoning without `pointer-guards.md`. The review runs and reports the gap. |
+| **CONDITIONAL** | only matters for one use -- `b4` for message-id review, the corpus for scoring against published reviews |
+
+Every problem it reports comes with the exact command to fix it. The skill runs
+this itself before every review and will **ask you** to arrange anything
+REQUIRED rather than reviewing without it -- a review run without the prompt
+bundle still produces a confident-looking report, and that is the failure mode
+worth being loud about.
 
 ### 4. Review a patch
 
@@ -133,7 +144,8 @@ config.sh              every site path; override by env or config.local.sh
 skill/                 what Claude Code loads (symlink this into ~/.claude/skills)
   SKILL.md               the procedure
   references/            lenses, verification discipline
-  scripts/               setup-review-target.sh -- resolves what to review
+  scripts/               preflight.sh -- checks prerequisites
+                         setup-review-target.sh -- resolves what to review
 corpus/                fetch-sashiko-hosted.sh -- pulls the ground-truth corpus
 evidence/              the measurements behind the rules
 harness/               optional: runs the real Sashiko binary for comparison,
