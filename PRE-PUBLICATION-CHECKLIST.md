@@ -88,6 +88,17 @@ who will check it.
 
 The test is a clone into a clean directory as a user who has never seen it.
 
+- [ ] **Repository topics are set.** GitHub repositories are a flat namespace --
+      there are no folders or nested repos -- so topics are the only indexing
+      mechanism. Up to 20 per repo, lowercase letters/numbers/hyphens, 50 chars
+      each. For this repo:
+
+          linux-kernel  code-review  static-analysis  claude-code
+          ai-code-review  mptcp  patch-review  developer-tools
+
+      The first four carry the most search traffic; `mptcp` is where the
+      measurements actually come from and should not be dropped just because
+      the method generalises.
 - [x] **The README's clone URL is real.** Points at
       `github.com/shardulsdk-mpiric/kernel-patch-review`. *The repository must
       exist under that name before this is published, or the first command in
