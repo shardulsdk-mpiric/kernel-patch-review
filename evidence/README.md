@@ -4,6 +4,14 @@ Each rule in `SKILL.md` that is not obvious should be traceable to something
 measured. This directory holds the measurements and the scripts that reproduce
 them.
 
+## comparison-vs-kreview.md
+
+A blind-scored comparison of this skill against Sashiko's own `/kreview` on 8
+blob-verified patches with published hosted reviews as ground truth. Includes
+the cost metering, the sampling procedure, and the false positive this skill
+produced. Read its "What this measurement does NOT support" section before
+quoting any number from it.
+
 ## severity-calibration.py
 
 Produces the tables behind `SKILL.md` section 6b, from 951 hosted findings

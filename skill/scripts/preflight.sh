@@ -83,6 +83,22 @@ _rec technical-patterns.md "loaded by the staged pipeline"
 _rec callstack.md          "loaded by the staged pipeline"
 _rec coccinelle.md         "mechanical cross-tree pattern checks"
 
+# semcode is a tool rather than a prompt file, but it belongs in this tier for
+# the same reason: the review runs without it, on git/grep and full-file reads,
+# just slower and with less reliable call-graph coverage. Sashiko's bundle
+# assumes it in ten-plus files.
+if command -v semcode >/dev/null 2>&1 || command -v semcode-mcp >/dev/null 2>&1; then
+    if grep -qs semcode "$HOME/.claude.json" 2>/dev/null; then
+        ok "semcode" "installed and registered as an MCP server"
+    else
+        warn "semcode" "installed, but NOT registered as an MCP server" \
+             "the binary alone does nothing here -- register semcode-mcp with Claude Code"
+    fi
+else
+    warn "semcode" "faster call-graph/type navigation (optional)" \
+         "https://github.com/facebookexperimental/semcode -- cargo build --release, then semcode-index -s \$KERNEL_TREE"
+fi
+
 # ------------------------------------------------------------- conditional ---
 head_ "CONDITIONAL -- needed only for the use named"
 if command -v b4 >/dev/null 2>&1; then ok "b4" "$(b4 --version 2>&1 | head -1)"
