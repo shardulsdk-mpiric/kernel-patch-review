@@ -22,9 +22,13 @@ processes):
 
     claude --print --output-format json --no-session-persistence
 
-`--no-session-persistence` means every stage starts from an empty context. The
-prompt bundle, the patch and the surrounding source are therefore re-sent once
-per stage, with no cache reuse and no carryover between stages. Verified
+`--no-session-persistence` means every stage starts from an empty context, and
+`--print` runs the CLI in text-completion mode -- no tools, no file access -- so
+Sashiko gathers the code itself and builds each stage's prompt in full. That
+prompt is therefore sent once per stage. It is largely a *cache read* rather
+than fresh input (hence the cached-token count below), which is cheap against an
+API key and still consumes quota against a subscription. What is not reused is
+conversation state, with no conversation state carried between stages. Verified
 measurements from runs of this pipeline:
 
 | measured | value |

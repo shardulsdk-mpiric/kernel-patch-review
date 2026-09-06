@@ -107,7 +107,9 @@ $KPR/skill/scripts/setup-review-target.sh --patchset 12427       # a sashiko.dev
 ```
 
 **Review only what it printed a `RANGE` for.** One subject in the MPTCP corpus
-is committed eight times across a month; choosing "the commit with that
+is committed eight times across a month, and in one sampled tree four commits
+shared a subject across three weeks resolving to two different file contents;
+choosing "the commit with that
 subject" once produced a review of code the author never posted. `VERIFIED=`
 tells you how much is confirmed: `yes` means blob hashes match a published
 review, `content-only` means the series applied cleanly but nothing independent
@@ -161,8 +163,18 @@ Sashiko itself and needs `SASHIKO_SRC` pointing at a full checkout.
 
 `evidence/` holds what was actually measured, and it is not a success story:
 
-- Scored against published Sashiko reviews, this trailed them -- 4 of 6
-  findings from a fresh context, 1 of 7 from inside a long working session.
+These are **two different comparisons and they point different ways**; do not
+read either as the headline.
+
+- Against the **hosted** Sashiko reviewer, this trailed it -- 4 of 6 findings
+  from a fresh context, 1 of 7 from inside a long working session. It has never
+  been measured to beat hosted.
+- Against **`/kreview`**, the command Sashiko's own prompt bundle ships, it
+  recovered 14 of 14 published findings to `/kreview`'s 9 on 8 blind-scored
+  patches -- while costing 1.6x the tokens and 2.5x the wall clock, and within
+  4% on cost per finding recovered. See `evidence/comparison-vs-kreview.md`,
+  including the Critical false positive this skill filed and `/kreview`
+  correctly rejected.
 - Across three patches the first Sashiko finding was found every time and the
   second missed every time, which is what section 4b exists to fix.
 - Severity was undercalled by about one level against 951 hosted findings,
