@@ -117,6 +117,39 @@ Two lessons, both self-inflicted:
   the fifth recorded instance of this repo's core failure mode: not missing
   guidance, but guidance not applied.
 
+## Follow-up: the false positive was fixed, and the fix was measured
+
+After the run, section 5 gained two rules: disclose when the refutation pass
+could not run and cap what it would have checked, and enumerate guards in every
+frame between entry point and dereference before filing a NULL-deref. Patchset
+44292 was then re-reviewed under the updated skill, same tree, same range, same
+prompt -- one agent this time, so the refutation pass had the budget it needs.
+
+| | original | re-run |
+|---|---|---|
+| findings | 7 | 6 |
+| the Critical | bundled getsockopt **and** setsockopt | scoped to getsockopt only |
+| setsockopt claim | filed as Critical -- **false** | **rejected**, with the guard quoted |
+| refutation pass | did not run | ran, one subagent per claim |
+| tokens | 146,687 | 198,037 |
+
+The false positive did not survive. Worth recording exactly how it died: **two
+of the three refutation subagents independently asserted the same wrong claim.**
+The reviewer overrode them by opening the caller frame and finding
+`if (unlikely(sk->sk_family != AF_INET6)) goto unlock;` at
+`ipv6_sockglue.c:553`. Consensus among refuters was wrong; reading one frame up
+was right.
+
+The true half was kept. `mptcp_getsockopt()` genuinely dispatches on `level`
+alone with no family check and no `mptcp_supported_sockopt()` filter, while
+`mptcp_setsockopt()` has that filter -- verified directly in the tree. The fix
+narrowed a finding rather than silencing one.
+
+**The fix costs 35% more tokens on this patch.** A refutation pass that cannot
+be silently skipped is a real expense, not a free correctness win. n=1: this is
+one patch re-reviewed once, and it is evidence the rule works, not a measurement
+of how often it matters.
+
 ## Reproducing
 
 ```sh
