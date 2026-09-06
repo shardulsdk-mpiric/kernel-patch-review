@@ -17,8 +17,8 @@ measured against the harness on equal footing. The reason is the **cost
 mechanism**, which differs structurally.
 
 Sashiko drives its pipeline by spawning one process per stage. With the
-Claude Code CLI provider that invocation is (verified by observing the running
-processes):
+Claude Code CLI provider that invocation is (read from Sashiko's source,
+`src/ai/claude_cli.rs`):
 
     claude --print --output-format json --no-session-persistence
 
@@ -27,8 +27,8 @@ processes):
 Sashiko gathers the code itself and builds each stage's prompt in full. That
 prompt is therefore sent once per stage. It is largely a *cache read* rather
 than fresh input (hence the cached-token count below), which is cheap against an
-API key and still consumes quota against a subscription. What is not reused is
-conversation state, with no conversation state carried between stages. Verified
+API key and still consumes quota against a subscription. What is not reused is conversation
+state. Verified
 measurements from runs of this pipeline:
 
 | measured | value |
