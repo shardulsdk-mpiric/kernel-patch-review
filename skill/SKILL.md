@@ -351,6 +351,32 @@ error; a subagent that never saw the reasoning does not. If cost forbids
 subagents, re-derive the claim from the source as though you had never seen it,
 starting from the declaration of every symbol involved.
 
+**If the refutation pass could not run, say so and cap what it would have
+checked.** Subagents are sometimes unavailable -- budget exhausted, concurrency
+limit, no subagent tool. When that happens the in-context fallback is a weaker
+check, not an equivalent one, and the report must not read as though the finding
+survived independent refutation. Then:
+
+- state in the report which findings were **not** independently refuted, and why
+- cap those findings at Medium unless the mechanism is proved by code you quote
+- name them as the ones a reader should re-check first
+
+This is measured, not hypothetical. Across eight patches reviewed with this
+skill, exactly one had its refutation pass fail this way, and that patch is the
+only one that produced a Critical false positive. Its reviewer flagged the right
+two findings as needing re-checking and filed them at full severity anyway. See
+`evidence/comparison-vs-kreview.md`.
+
+**Before filing any NULL-dereference or missing-check finding, enumerate the
+guards in EVERY frame between the entry point and the dereference -- not only
+the frame in front of you -- and state in the finding which frames you checked.**
+A guard one call above the code in view is the most common way a confident
+NULL-deref finding turns out to be wrong: the false positive above was a
+dereference genuinely unguarded in its own function and guarded in its caller,
+which the reviewer never opened. `pointer-guards.md` already requires this --
+*"CRITICAL: You need to find the callers of these functions as well"* -- so read
+it rather than relying on this paragraph.
+
 ## 5b. Three outcomes, not two — never drop an established mechanism
 
 A finding has three possible fates, and collapsing them into "keep or dismiss"
