@@ -4,6 +4,15 @@ Each rule in `SKILL.md` that is not obvious should be traceable to something
 measured. This directory holds the measurements and the scripts that reproduce
 them.
 
+## tool-call-repetition.md and tool-call-repetition.py
+
+Why a review agent reissues tool calls whose answers are already in its
+context, measured across 25 recorded runs. The finding is that the result is
+buried rather than missing, so a repeat restores recency rather than fetching
+data, which is why answering with an error made the looping worse and
+answering with the earlier result does not. States plainly that the effect on
+review quality is unmeasured.
+
 ## comparison-vs-kreview.md
 
 A blind-scored comparison of this skill against Sashiko's own `/kreview` on 8
